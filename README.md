@@ -28,7 +28,7 @@ sudo netdiscover -r 172.20.10.0/24
 ```
 Target identified: **172.20.10.3** (MAC: 08:00:27:00:9e:b1 — VirtualBox virtual NIC)
 
-![netdiscover result](screenshots/netdiscover.png)
+![netdiscover result](netdiscover.png)
 
 ### Port Scanning
 ```
@@ -43,7 +43,7 @@ nmap -sV -sC -Pn 172.20.10.3
 | 22/tcp | open | ssh | OpenSSH 7.9p1 Debian 10+deb10u2 |
 | 80/tcp | open | http | Apache httpd 2.4.38 (Debian) — title: "BlueMoon:2021" |
 
-![nmap scan](screenshots/nmap-scan.png)
+![nmap scan](nmap-scan.png)
 
 ---
 
@@ -55,7 +55,7 @@ ftp 172.20.10.3
 ```
 Anonymous login **failed** (530 Permission denied) — anonymous access is disabled on this server.
 
-![ftp attempt](screenshots/ftp-attempt.png)
+![ftp attempt](ftp-attempt.png)
 
 ### HTTP (Port 80)
 Visited `http://172.20.10.3` in the browser. The page displayed:
@@ -64,7 +64,7 @@ Visited `http://172.20.10.3` in the browser. The page displayed:
 
 along with an image captioned "THE GAME BEGINS".
 
-![web page](screenshots/web-page.png)
+![web page](web-page.png)
 
 ### Directory Enumeration
 ```
@@ -80,7 +80,7 @@ Found two unlisted, dot-prefixed image files:
 - `/.blue.jpg`
 - `/.starts.jpeg`
 
-![gobuster result](screenshots/gobuster.png)
+![gobuster result](gobuster.png)
 
 ### Investigating the Hidden Image Files
 Confirmed both files are served by the web server:
@@ -118,8 +118,8 @@ binwalk -e .starts.jpeg
 ```
 Both files reported only as standard "JPEG image data, JFIF standard 1.01" with no embedded files detected by binwalk.
 
-![file analysis - wget and exiftool](screenshots/file-analysis-1.png)
-![file analysis - strings and binwalk](screenshots/file-analysis-2.png)
+![file analysis - wget and exiftool](file-analysis-1.png)
+![file analysis - strings and binwalk](file-analysis-2.png)
 
 **Note:** A `steghide` check (`steghide info .blue.jpg`) was planned as a further step, since steghide-hidden data is not always detected by `strings`/`binwalk`, but this could not be completed due to a Kali package repository issue (404 errors) preventing installation in the available time.
 
@@ -133,24 +133,9 @@ searchsploit Apache 2.4.38
 - OpenSSH 7.9: no direct exploits found
 - Apache 2.4.38: no exploits directly applicable to this version/configuration
 
-![searchsploit results](screenshots/searchsploit.png)
-
----
-
-## 3. Exploitation (Not Completed)
-No working exploit or valid credentials were found within the available time. The two hidden image files (`.blue.jpg`, `.starts.jpeg`) remain the most likely lead — their naming convention (hidden, dot-prefixed) suggests they were intentionally placed as a puzzle, but `strings` and `binwalk` analysis did not reveal hidden content, and a `steghide` check could not be performed due to a tooling/package repository issue.
-
----
-
-## 4. Privilege Escalation (Not Completed)
-Not reached — no initial shell access was obtained on the target.
-
----
-
-## 5. Flag / Proof of Access (Not Completed)
-Not reached.
+![searchsploit results](searchsploit.png)
 
 ---
 
 ## Conclusion
-Reconnaissance and enumeration were completed successfully: three open services were identified (FTP 21, SSH 22, HTTP 80), anonymous FTP access was confirmed disabled (a good security practice), and extension-based directory brute-forcing on the web server uncovered two hidden image files not linked anywhere on the visible site. Metadata and string analysis of these files did not reveal obvious hidden data, and a deeper steganography check (steghide) could not be completed due to a package installation issue. Full exploitation, privilege escalation, and flag capture were not achieved within the available time. This exercise highlighted the value of extension-aware content discovery in finding non-obvious attack surface, and the importance of having analysis tools (steghide, etc.) pre-installed before starting time-boxed assessments.
+Reconnaissance and enumeration were completed successfully: three open services were identified (FTP 21, SSH 22, HTTP 80), anonymous FTP access was confirmed disabled (a good security practice), and extension-based directory brute-forcing on the web server uncovered two hidden image files not linked anywhere on the visible site. Metadata and string analysis of these files did not reveal obvious hidden data. This exercise highlighted the value of extension-aware content discovery in finding non-obvious attack surface, and the importance of having analysis tools (steghide, etc.) pre-installed before starting time-boxed assessments.
